@@ -36,7 +36,7 @@ namespace DataAcquisition.Shared
             }
         }
 
-        public static void DoForEachRowInTextFile(string filePath, int columns, Action<string[]> action)
+        public static void DoForEachRowInTextFile(string filePath, int columns, Action<string[]> action, string separator = "\t")
         {
             using (var fileStream = File.OpenText(filePath))
             {
@@ -46,7 +46,7 @@ namespace DataAcquisition.Shared
                     if (string.IsNullOrWhiteSpace(line))
                         continue;
 
-                    var arr = line.Split('\t', StringSplitOptions.TrimEntries);
+                    var arr = line.Split(separator, StringSplitOptions.TrimEntries);
                     if (arr.Length != columns)
                         throw new InvalidDataException();
 

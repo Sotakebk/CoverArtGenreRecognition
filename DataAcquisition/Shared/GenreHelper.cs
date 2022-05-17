@@ -1,4 +1,6 @@
-﻿using static DataAcquisition.Shared.Genres.GenreAggregate;
+﻿using System;
+using System.Linq;
+using static DataAcquisition.Shared.Genres.GenreAggregate;
 
 namespace DataAcquisition.Shared
 {
@@ -108,6 +110,37 @@ namespace DataAcquisition.Shared
                 bytes >>= 8;
             }
             return sum;
+        }
+
+        public static string[] GetGenreNames()
+        {
+            return Enum.GetNames(typeof(Genre)).Skip(1).ToArray();
+        }
+
+        public static int[] GetGenresAs01s(Genre genre)
+        {
+            int conv(Genre g, Genre f) => g.HasFlag(f) ? 1 : 0;
+
+            return new int[] {
+                conv(genre, Genre.African),
+                conv(genre, Genre.Asian),
+                conv(genre, Genre.AvantGardeOrExperimental),
+                conv(genre, Genre.Blues),
+                conv(genre, Genre.Classical),
+                conv(genre, Genre.Country),
+                conv(genre, Genre.EasyListening),
+                conv(genre, Genre.Electronic),
+                conv(genre, Genre.Folk),
+                conv(genre, Genre.HipHop),
+                conv(genre, Genre.Jazz),
+                conv(genre, Genre.LatinOrCarribean),
+                conv(genre, Genre.Metal),
+                conv(genre, Genre.MiddleEastern),
+                conv(genre, Genre.Pop),
+                conv(genre, Genre.Punk),
+                conv(genre, Genre.RnBOrSoul),
+                conv(genre, Genre.Rock)
+            };
         }
     }
 }

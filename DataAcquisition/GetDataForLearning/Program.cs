@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using static DataAcquisition.Shared.ConsoleHelper;
 
 namespace DataAcquisition.GetDataForLearning
 {
@@ -91,13 +92,31 @@ namespace DataAcquisition.GetDataForLearning
 
         private static void Save(IEnumerable<(Release, CoverArt, Genre)> entries)
         {
-            var filePath = FilePaths.FilenameToSavePath("valid_data_list.txt");
+            var filePath = FilePaths.FilenameToSavePath("valid_data_list.csv");
 
             using var fileStream = File.CreateText(filePath);
+
+            // header
+            fileStream.WriteLine(
+                $"GroupID," +
+                $"ReleaseGUID," +
+                $"CoverArtID," +
+                $"ImageType," +
+                $"GenreCount," +
+                $"{string.Join(",", GenreHelper.GetGenreNames())}");
+
             foreach (var entry in entries)
             {
-                if (entry.Item3 != Genre.Empty)
-                    fileStream.WriteLine($"{entry.Item1.Guid}\t{entry.Item2.ImageId}\t{(int)entry.Item2.FileType}\t{(int)entry.Item3}");
+                if (entry.Item3 == Genre.Empty)
+                    continue;
+
+                fileStream.WriteLine(
+                    $"{entry.Item1.GroupId}," +
+                    $"{entry.Item1.Guid}," +
+                    $"{entry.Item2.ImageId}," +
+                    $"{(int)entry.Item2.FileType}," +
+                    $"{GenreHelper.CountSetFlags(entry.Item3)}," +
+                    $"{string.Join(",", GenreHelper.GetGenresAs01s(entry.Item3))}");
             }
             fileStream.Flush();
         }
@@ -243,16 +262,6 @@ namespace DataAcquisition.GetDataForLearning
             }
 
             return list.ToArray();
-        }
-
-        private static void QuitImmediately(string message = null, int code = 0)
-        {
-            if (message != null)
-                Console.WriteLine(message);
-            Console.WriteLine("Press any button to exit...");
-            Console.Read();
-
-            Environment.Exit(code);
         }
     }
 }
