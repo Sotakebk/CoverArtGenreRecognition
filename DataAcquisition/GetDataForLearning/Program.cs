@@ -79,7 +79,7 @@ namespace DataAcquisition.GetDataForLearning
             Console.WriteLine($"Release groups with cover art: {count}");
             count = merged.Count(i => i.Item3 != Genre.Empty);
             Console.WriteLine($"Release groups with genre: {count}");
-            count = merged.Length - merged.Count();
+            count = merged.Length - count;
             Console.WriteLine($"Release groups without genre: {count}");
             Console.WriteLine("Sorting...");
             var sorted = merged.OrderByDescending(i => GenreHelper.CountSetFlags(i.Item3));
