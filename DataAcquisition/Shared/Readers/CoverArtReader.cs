@@ -20,7 +20,7 @@ namespace DataAcquisition.Shared.Readers
                 var id = long.Parse(arr[0]);
                 var releaseId = int.Parse(arr[1]);
                 var fileType = FileTypeToEnum(arr[7]);
-                if (fileType != ImageFileType.Png && fileType != ImageFileType.Jpeg)
+                if (fileType != ImageFileType.Png && fileType != ImageFileType.Jpg)
                     return;
 
                 if (IdsToSave.Contains(id))
@@ -60,7 +60,7 @@ namespace DataAcquisition.Shared.Readers
         {
             return text switch
             {
-                @"image/jpeg" => ImageFileType.Jpeg,
+                @"image/jpeg" => ImageFileType.Jpg,
                 @"image/png" => ImageFileType.Png,
                 @"application/pdf" => ImageFileType.pdf,
                 @"image/gif" => ImageFileType.gif,

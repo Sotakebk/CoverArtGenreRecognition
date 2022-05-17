@@ -4,7 +4,7 @@
     {
         unknown = 0,
         Png = 1,
-        Jpeg,
+        Jpg,
         pdf,
         gif
     }
