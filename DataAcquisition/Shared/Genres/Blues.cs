@@ -60,7 +60,7 @@ namespace DataAcquisition.Shared.Genres
             "swamp blues",
             "texas blues",
             "twelve-bar blues",
-            "west coast blues",
+            "west coast blues"
         };
     }
 }

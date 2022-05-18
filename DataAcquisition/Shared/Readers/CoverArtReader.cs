@@ -1,7 +1,5 @@
 ﻿using DataAcquisition.Shared.Structures;
-using System;
 using System.Collections.Generic;
-using System.IO;
 
 namespace DataAcquisition.Shared.Readers
 {
@@ -9,26 +7,25 @@ namespace DataAcquisition.Shared.Readers
     {
         public static Dictionary<int, CoverArt> Read()
         {
-            var IdsToSave = ReadFrontCoverIds();
+            var frontCoverIds = ReadFrontCoverIds();
 
             var filePath = FilePaths.CoverArtsFilePath;
-            var count = FileHelper.CountNonEmptyLinesInTextFile(filePath);
+            var count = FileHelper.CountNotEmptyLinesInTextFile(filePath);
             var dict = new Dictionary<int, CoverArt>((int)count);
 
-            FileHelper.DoForEachRowInTextFile(filePath, 12, (arr) =>
+            FileHelper.DoForEachRowInTextFile(filePath, 12, arr =>
             {
                 var id = long.Parse(arr[0]);
                 var releaseId = int.Parse(arr[1]);
-                var fileType = FileTypeToEnum(arr[7]);
-                if (fileType != ImageFileType.Png && fileType != ImageFileType.Jpg)
+                var fileType = FileTypeToEnum(arr[7].ToLowerInvariant());
+
+                if (fileType is not (ImageFileType.Png or ImageFileType.Jpg) || !frontCoverIds.Contains(id))
                     return;
 
-                if (IdsToSave.Contains(id))
-                {
-                    if (dict.ContainsKey(releaseId))
-                        dict.Remove(releaseId);
-                    dict.Add(releaseId, new CoverArt(id, fileType));
-                }
+                if (dict.ContainsKey(releaseId)) // replace old entry with a newer one
+                    dict.Remove(releaseId);
+
+                dict.Add(releaseId, new CoverArt(id, fileType));
             });
 
             dict.TrimExcess();
@@ -38,10 +35,10 @@ namespace DataAcquisition.Shared.Readers
         private static HashSet<long> ReadFrontCoverIds()
         {
             var filePath = FilePaths.CoverArtTypesFilePath;
-            var count = FileHelper.CountNonEmptyLinesInTextFile(filePath);
+            var count = FileHelper.CountNotEmptyLinesInTextFile(filePath);
             var set = new HashSet<long>((int)count);
 
-            FileHelper.DoForEachRowInTextFile(filePath, 2, (arr) =>
+            FileHelper.DoForEachRowInTextFile(filePath, 2, arr =>
             {
                 var id = long.Parse(arr[0]);
                 var typeId = int.Parse(arr[1]);
@@ -62,9 +59,9 @@ namespace DataAcquisition.Shared.Readers
             {
                 @"image/jpeg" => ImageFileType.Jpg,
                 @"image/png" => ImageFileType.Png,
-                @"application/pdf" => ImageFileType.pdf,
-                @"image/gif" => ImageFileType.gif,
-                _ => ImageFileType.unknown,
+                @"application/pdf" => ImageFileType.Pdf,
+                @"image/gif" => ImageFileType.Gif,
+                _ => ImageFileType.Unknown
             };
         }
     }

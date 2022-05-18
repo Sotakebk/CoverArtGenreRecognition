@@ -85,7 +85,7 @@ namespace DataAcquisition.Shared.Genres
             "west coast jazz",
             "western swing",
             "yass",
-            "zimbabwean",
+            "zimbabwean"
         };
     }
 }

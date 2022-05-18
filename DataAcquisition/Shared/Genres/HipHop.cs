@@ -80,7 +80,7 @@ namespace DataAcquisition.Shared.Genres
             "turntablism",
             "uk drill",
             "underground hip hop",
-            "west coast hip hop",
+            "west coast hip hop"
         };
     }
 }

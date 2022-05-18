@@ -175,7 +175,7 @@ namespace DataAcquisition.Shared.Genres
             "western classical music",
             "wind quintet",
             "zarzuela",
-            "étude",
+            "étude"
         };
     }
 }

@@ -131,7 +131,7 @@ namespace DataAcquisition.Shared.Genres
             "world fusion",
             "worldbeat",
             "yacht rock",
-            "zolo",
+            "zolo"
         };
     }
 }

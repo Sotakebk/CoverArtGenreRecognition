@@ -75,7 +75,7 @@ namespace DataAcquisition.Shared.Genres
             "synthpunk",
             "taqwacore",
             "thrashcore",
-            "trallpunk",
+            "trallpunk"
         };
     }
 }

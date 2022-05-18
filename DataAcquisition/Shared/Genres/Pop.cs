@@ -105,7 +105,7 @@ namespace DataAcquisition.Shared.Genres
             "wonky pop",
             "worldbeat",
             "yacht rock",
-            "yé-yé",
+            "yé-yé"
         };
     }
 }

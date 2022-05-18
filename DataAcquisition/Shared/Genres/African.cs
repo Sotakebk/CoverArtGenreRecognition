@@ -86,7 +86,7 @@ namespace DataAcquisition.Shared.Genres
             "séga",
             "taarab",
             "zamrock",
-            "zouglou",
+            "zouglou"
         };
     }
 }

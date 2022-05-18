@@ -1,18 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 
 namespace DataAcquisition.Shared.Readers
 {
     public static class TagRelationReader
     {
-        public static (int, int)[] ReadReleaseToTagRelations()
+        public static (int releaseId, int tagId)[] ReadReleaseToTagRelations()
         {
             var filepath = FilePaths.ReleaseTagsFilePath;
-            var count = FileHelper.CountNonEmptyLinesInTextFile(filepath);
+            var count = FileHelper.CountNotEmptyLinesInTextFile(filepath);
             var list = new List<(int, int)>((int)count);
 
-            FileHelper.DoForEachRowInTextFile(filepath, 4, (arr) =>
+            FileHelper.DoForEachRowInTextFile(filepath, 4, arr =>
             {
                 var id = int.Parse(arr[0]);
                 var id2 = int.Parse(arr[1]);
@@ -23,13 +21,13 @@ namespace DataAcquisition.Shared.Readers
             return list.ToArray();
         }
 
-        public static (int, int)[] ReadReleaseGroupToTagRelations()
+        public static (int groupId, int tagId)[] ReadReleaseGroupToTagRelations()
         {
             var filepath = FilePaths.ReleaseGroupTagsFilePath;
-            var count = FileHelper.CountNonEmptyLinesInTextFile(filepath);
+            var count = FileHelper.CountNotEmptyLinesInTextFile(filepath);
             var list = new List<(int, int)>((int)count);
 
-            FileHelper.DoForEachRowInTextFile(filepath, 4, (arr) =>
+            FileHelper.DoForEachRowInTextFile(filepath, 4, arr =>
             {
                 var id = int.Parse(arr[0]);
                 var id2 = int.Parse(arr[1]);

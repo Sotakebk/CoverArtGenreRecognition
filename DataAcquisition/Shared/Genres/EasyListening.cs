@@ -27,7 +27,7 @@ namespace DataAcquisition.Shared.Genres
             "nature sounds",
             "new-age music",
             "porn groove",
-            "space ambient",
+            "space ambient"
         };
     }
 }

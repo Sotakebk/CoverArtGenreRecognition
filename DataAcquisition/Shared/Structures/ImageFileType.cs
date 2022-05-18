@@ -2,10 +2,10 @@
 {
     public enum ImageFileType : byte
     {
-        unknown = 0,
+        Unknown = 0,
         Png = 1,
         Jpg,
-        pdf,
-        gif
+        Pdf,
+        Gif
     }
 }

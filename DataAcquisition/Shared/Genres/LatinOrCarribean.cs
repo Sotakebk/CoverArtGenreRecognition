@@ -296,7 +296,7 @@ namespace DataAcquisition.Shared.Genres
             "zarambo",
             "zouk",
             "zouk-lambada",
-            "zumbi",
+            "zumbi"
         };
     }
 }

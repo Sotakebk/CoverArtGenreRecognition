@@ -52,7 +52,7 @@ namespace DataAcquisition.Shared.Genres
             "soul jazz",
             "southern gospel",
             "southern soul",
-            "west coast swing",
+            "west coast swing"
         };
     }
 }

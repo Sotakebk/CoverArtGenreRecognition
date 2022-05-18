@@ -134,7 +134,7 @@ namespace DataAcquisition.Shared.Genres
             "visual kei",
             "wuxi opera",
             "yōkyoku",
-            "zhongguo feng",
+            "zhongguo feng"
         };
     }
 }

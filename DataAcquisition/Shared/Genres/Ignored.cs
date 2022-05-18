@@ -8,7 +8,7 @@ namespace DataAcquisition.Shared.Genres
         {
             "instrumental",
             "production music",
-            "western",
+            "western"
         };
     }
 }

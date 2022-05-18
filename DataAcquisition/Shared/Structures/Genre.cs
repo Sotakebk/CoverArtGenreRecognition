@@ -3,7 +3,7 @@
 namespace DataAcquisition.Shared
 {
     [Flags]
-    public enum Genre : uint
+    public enum GenreFlags : uint
     {
         Empty = 0,
         African = 1 << 0,
@@ -24,29 +24,28 @@ namespace DataAcquisition.Shared
         Punk = 1 << 15,
         RnBOrSoul = 1 << 16,
         Rock = 1 << 17
-    };
+    }
 
     public static class GenreExtensions
     {
-        public static string ToSerializedString(this Genre genre)
+        public static string ToSerializedString(this GenreFlags genreFlags)
         {
-            return ((uint)genre).ToString();
+            return ((uint)genreFlags).ToString();
         }
 
-        public static Genre Parse(string s)
+        public static GenreFlags Parse(string s)
         {
             if (TryParse(s, out var genre))
                 return genre;
-            else
-                throw new ArgumentException("Invalid value passed!");
+            throw new ArgumentException("Invalid value passed!");
         }
 
-        public static bool TryParse(string s, out Genre value)
+        public static bool TryParse(string s, out GenreFlags value)
         {
             value = default;
-            var successful = uint.TryParse(s, out uint intermediate);
+            var successful = uint.TryParse(s, out var intermediate);
             if (successful)
-                value = (Genre)intermediate;
+                value = (GenreFlags)intermediate;
 
             return successful;
         }

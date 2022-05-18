@@ -37,7 +37,7 @@ namespace DataAcquisition.Shared.Genres
             "syrian music",
             "tarab music",
             "tizita",
-            "zajal",
+            "zajal"
         };
     }
 }

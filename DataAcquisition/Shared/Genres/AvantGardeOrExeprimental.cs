@@ -62,7 +62,7 @@ namespace DataAcquisition.Shared.Genres
             "progressive rock",
             "spectralism",
             "surrealist music",
-            "zolo",
+            "zolo"
         };
     }
 }

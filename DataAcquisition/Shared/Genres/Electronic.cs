@@ -433,7 +433,7 @@ namespace DataAcquisition.Shared.Genres
             "wonky",
             "wonky techno",
             "worldbeat",
-            "zenonesque",
+            "zenonesque"
         };
     }
 }

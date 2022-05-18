@@ -1,51 +1,52 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace DataAcquisition.Shared
 {
     public static class FilePaths
     {
-        private static readonly string pathToReleases = @"mbdump\mbdump\release";
-        private static readonly string pathToTags = @"mbdump-derived\mbdump\tag";
-        private static readonly string pathToReleaseTags = @"mbdump-derived\mbdump\release_tag";
-        private static readonly string pathToReleaseGroupTags = @"mbdump-derived\mbdump\release_group_tag";
-        private static readonly string pathToCoverArts = @"mbdump-cover-art-archive\mbdump\cover_art_archive.cover_art";
-        private static readonly string pathToCoverArtTypes = @"mbdump-cover-art-archive\mbdump\cover_art_archive.cover_art_type";
+        private const string PathToReleases = @"mbdump\mbdump\release";
+        private const string PathToTags = @"mbdump-derived\mbdump\tag";
+        private const string PathToReleaseTags = @"mbdump-derived\mbdump\release_tag";
+        private const string PathToReleaseGroupTags = @"mbdump-derived\mbdump\release_group_tag";
+        private const string PathToCoverArts = @"mbdump-cover-art-archive\mbdump\cover_art_archive.cover_art";
+        private const string PathToCoverArtTypes = @"mbdump-cover-art-archive\mbdump\cover_art_archive.cover_art_type";
 
-        private static string readFolder = "";
-        private static string saveFolder = "";
+        private static string _readFolder = "";
+        private static string _saveFolder = "";
+
+        public static string ReleasesFilePath => Path.Combine(_readFolder, PathToReleases);
+        public static string TagsFilePath => Path.Combine(_readFolder, PathToTags);
+        public static string ReleaseTagsFilePath => Path.Combine(_readFolder, PathToReleaseTags);
+        public static string ReleaseGroupTagsFilePath => Path.Combine(_readFolder, PathToReleaseGroupTags);
+        public static string CoverArtsFilePath => Path.Combine(_readFolder, PathToCoverArts);
+        public static string CoverArtTypesFilePath => Path.Combine(_readFolder, PathToCoverArtTypes);
 
         public static void SetUp(string readFolderPath = null, string saveFolderPath = null)
         {
-            readFolder = readFolderPath ?? Environment.CurrentDirectory;
-            saveFolder = saveFolderPath ?? Path.Combine(Environment.CurrentDirectory, "saved");
+            _readFolder = readFolderPath ?? Environment.CurrentDirectory;
+            _saveFolder = saveFolderPath ?? Path.Combine(Environment.CurrentDirectory, "saved");
 
-            Directory.CreateDirectory(saveFolder);
+            Directory.CreateDirectory(_saveFolder);
         }
 
-        public static bool TestFilePresence(out string[] missingFiles)
+        public static string[] ListMissingFiles()
         {
-            var arr = new[] { ReleasesFilePath, TagsFilePath, ReleaseTagsFilePath, ReleaseGroupTagsFilePath, CoverArtsFilePath, CoverArtTypesFilePath };
-            var missing = new List<string>(arr.Length);
-
-            foreach (var path in arr)
+            var arr = new[]
             {
-                if (!File.Exists(path))
-                    missing.Add(Path.GetFullPath(path));
-            }
+                ReleasesFilePath, TagsFilePath, ReleaseTagsFilePath, ReleaseGroupTagsFilePath, CoverArtsFilePath,
+                CoverArtTypesFilePath
+            };
 
-            missingFiles = missing.ToArray();
-            return missing.Count == 0;
+            return arr.Select(i => Path.GetFullPath(i))
+                .Where(i => !File.Exists(i))
+                .ToArray();
         }
 
-        public static string ReleasesFilePath => Path.Combine(readFolder, pathToReleases);
-        public static string TagsFilePath => Path.Combine(readFolder, pathToTags);
-        public static string ReleaseTagsFilePath => Path.Combine(readFolder, pathToReleaseTags);
-        public static string ReleaseGroupTagsFilePath => Path.Combine(readFolder, pathToReleaseGroupTags);
-        public static string CoverArtsFilePath => Path.Combine(readFolder, pathToCoverArts);
-        public static string CoverArtTypesFilePath => Path.Combine(readFolder, pathToCoverArtTypes);
-
-        public static string FilenameToSavePath(string filename) => Path.Combine(saveFolder, filename);
+        public static string FilenameToSavePath(string filename)
+        {
+            return Path.Combine(_saveFolder, filename);
+        }
     }
 }

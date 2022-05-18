@@ -5,11 +5,11 @@ VisualStudioVersion = 16.0.32228.343
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAcquisition.Shared", "Shared\DataAcquisition.Shared.csproj", "{5C186614-E21A-4B04-B0AB-847AFA35EDE0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAcquisiton.ListUnknownTags", "ListUnknownTags\DataAcquisiton.ListUnknownTags.csproj", "{1FA5B8C6-2C4D-4D42-A40E-4562C0189DD7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAcquisition.GetDataForLearning", "GetDataForLearning\DataAcquisition.GetDataForLearning.csproj", "{C18F035D-FA6E-4826-80E1-1306658EAEEA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAcquisition.ListValidData", "GetDataForLearning\DataAcquisition.ListValidData.csproj", "{C18F035D-FA6E-4826-80E1-1306658EAEEA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAcquisition.Downloader", "Downloader\DataAcquisition.Downloader.csproj", "{565E8EFF-D906-4C2F-8BE5-F46D734DA98C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAcquisition.Downloader", "DataAcquisition.Downloader\DataAcquisition.Downloader.csproj", "{4150DC3E-39D6-4D76-ADE9-37DB95D9E33B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAcquisition.ListTags", "ListTags\DataAcquisition.ListTags.csproj", "{FCF38DBD-E54E-4D45-B318-26D7976AFFDD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,18 +21,18 @@ Global
 		{5C186614-E21A-4B04-B0AB-847AFA35EDE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5C186614-E21A-4B04-B0AB-847AFA35EDE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5C186614-E21A-4B04-B0AB-847AFA35EDE0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1FA5B8C6-2C4D-4D42-A40E-4562C0189DD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1FA5B8C6-2C4D-4D42-A40E-4562C0189DD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1FA5B8C6-2C4D-4D42-A40E-4562C0189DD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1FA5B8C6-2C4D-4D42-A40E-4562C0189DD7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C18F035D-FA6E-4826-80E1-1306658EAEEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C18F035D-FA6E-4826-80E1-1306658EAEEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C18F035D-FA6E-4826-80E1-1306658EAEEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C18F035D-FA6E-4826-80E1-1306658EAEEA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4150DC3E-39D6-4D76-ADE9-37DB95D9E33B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4150DC3E-39D6-4D76-ADE9-37DB95D9E33B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4150DC3E-39D6-4D76-ADE9-37DB95D9E33B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4150DC3E-39D6-4D76-ADE9-37DB95D9E33B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{565E8EFF-D906-4C2F-8BE5-F46D734DA98C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{565E8EFF-D906-4C2F-8BE5-F46D734DA98C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{565E8EFF-D906-4C2F-8BE5-F46D734DA98C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{565E8EFF-D906-4C2F-8BE5-F46D734DA98C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FCF38DBD-E54E-4D45-B318-26D7976AFFDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FCF38DBD-E54E-4D45-B318-26D7976AFFDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FCF38DBD-E54E-4D45-B318-26D7976AFFDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FCF38DBD-E54E-4D45-B318-26D7976AFFDD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

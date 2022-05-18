@@ -87,7 +87,7 @@ namespace DataAcquisition.Shared.Genres
             "unblack metal",
             "viking metal",
             "war metal",
-            "mincecore",
+            "mincecore"
         };
     }
 }

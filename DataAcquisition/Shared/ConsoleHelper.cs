@@ -8,10 +8,23 @@ namespace DataAcquisition.Shared
         {
             if (message != null)
                 Console.WriteLine(message);
+
             Console.WriteLine("Press any button to exit...");
             Console.Read();
 
             Environment.Exit(code);
+        }
+
+        public static bool TestIfFilesExist()
+        {
+            var missingFiles = FilePaths.ListMissingFiles();
+
+            if (missingFiles.Length == 0)
+                return true;
+
+            foreach (var file in missingFiles) Console.WriteLine($"Missing file: {file}");
+
+            return false;
         }
     }
 }

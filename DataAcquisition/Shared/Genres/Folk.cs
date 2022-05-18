@@ -61,7 +61,7 @@ namespace DataAcquisition.Shared.Genres
             "kaiso",
             "klezmer",
             "koplo",
-            "kwakwaka",
+            "kwakwaka"
         };
     }
 }

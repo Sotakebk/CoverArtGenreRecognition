@@ -6,84 +6,83 @@ namespace DataAcquisition.Shared
 {
     public static class GenreHelper
     {
-        public static Genre GetGenreFromString(string s)
+        private const int Mask = 0b11111111;
+
+        private static byte[] _lookupTable;
+        private static byte[] LookupTable => _lookupTable ??= GenerateLookupTable();
+
+        public static GenreFlags GetGenreFromString(string s)
         {
             s = s.ToLowerInvariant();
-            Genre genre = Genre.Empty;
+            var genreFlags = GenreFlags.Empty;
 
             if (AfricanGenres.Contains(s))
-                genre |= Genre.African;
+                genreFlags |= GenreFlags.African;
             if (AsianGenres.Contains(s))
-                genre |= Genre.Asian;
+                genreFlags |= GenreFlags.Asian;
             if (AvantGardeOrExeprimentalGenres.Contains(s))
-                genre |= Genre.AvantGardeOrExperimental;
+                genreFlags |= GenreFlags.AvantGardeOrExperimental;
             if (BluesGenres.Contains(s))
-                genre |= Genre.Blues;
+                genreFlags |= GenreFlags.Blues;
             if (ClassicalGenres.Contains(s))
-                genre |= Genre.Classical;
+                genreFlags |= GenreFlags.Classical;
             if (CountryGenres.Contains(s))
-                genre |= Genre.Country;
+                genreFlags |= GenreFlags.Country;
             if (EasyListeningGenres.Contains(s))
-                genre |= Genre.EasyListening;
+                genreFlags |= GenreFlags.EasyListening;
             if (ElectronicGenres.Contains(s))
-                genre |= Genre.Electronic;
+                genreFlags |= GenreFlags.Electronic;
             if (FolkGenres.Contains(s))
-                genre |= Genre.Folk;
+                genreFlags |= GenreFlags.Folk;
             if (HipHopGenres.Contains(s))
-                genre |= Genre.HipHop;
+                genreFlags |= GenreFlags.HipHop;
             if (JazzGenres.Contains(s))
-                genre |= Genre.Jazz;
+                genreFlags |= GenreFlags.Jazz;
             if (LatinOrCarribeanGenres.Contains(s))
-                genre |= Genre.LatinOrCarribean;
+                genreFlags |= GenreFlags.LatinOrCarribean;
             if (MetalGenres.Contains(s))
-                genre |= Genre.Metal;
+                genreFlags |= GenreFlags.Metal;
             if (MiddleEasternGenres.Contains(s))
-                genre |= Genre.MiddleEastern;
+                genreFlags |= GenreFlags.MiddleEastern;
             if (PopGenres.Contains(s))
-                genre |= Genre.Pop;
+                genreFlags |= GenreFlags.Pop;
             if (PunkGenres.Contains(s))
-                genre |= Genre.Punk;
+                genreFlags |= GenreFlags.Punk;
             if (RnBOrSoulGenres.Contains(s))
-                genre |= Genre.RnBOrSoul;
+                genreFlags |= GenreFlags.RnBOrSoul;
             if (RockGenres.Contains(s))
-                genre |= Genre.Rock;
+                genreFlags |= GenreFlags.Rock;
 
-            return genre;
+            return genreFlags;
         }
 
         public static bool IsStringInAnyGroup(string s)
         {
-            return (IgnoredGenres.Contains(s)
-            || AfricanGenres.Contains(s)
-            || AsianGenres.Contains(s)
-            || AvantGardeOrExeprimentalGenres.Contains(s)
-            || BluesGenres.Contains(s)
-            || ClassicalGenres.Contains(s)
-            || CountryGenres.Contains(s)
-            || EasyListeningGenres.Contains(s)
-            || ElectronicGenres.Contains(s)
-            || FolkGenres.Contains(s)
-            || HipHopGenres.Contains(s)
-            || JazzGenres.Contains(s)
-            || LatinOrCarribeanGenres.Contains(s)
-            || MetalGenres.Contains(s)
-            || MiddleEasternGenres.Contains(s)
-            || PopGenres.Contains(s)
-            || PunkGenres.Contains(s)
-            || RnBOrSoulGenres.Contains(s)
-            || RockGenres.Contains(s));
+            return IgnoredGenres.Contains(s)
+                   || AfricanGenres.Contains(s)
+                   || AsianGenres.Contains(s)
+                   || AvantGardeOrExeprimentalGenres.Contains(s)
+                   || BluesGenres.Contains(s)
+                   || ClassicalGenres.Contains(s)
+                   || CountryGenres.Contains(s)
+                   || EasyListeningGenres.Contains(s)
+                   || ElectronicGenres.Contains(s)
+                   || FolkGenres.Contains(s)
+                   || HipHopGenres.Contains(s)
+                   || JazzGenres.Contains(s)
+                   || LatinOrCarribeanGenres.Contains(s)
+                   || MetalGenres.Contains(s)
+                   || MiddleEasternGenres.Contains(s)
+                   || PopGenres.Contains(s)
+                   || PunkGenres.Contains(s)
+                   || RnBOrSoulGenres.Contains(s)
+                   || RockGenres.Contains(s);
         }
-
-        private static byte[] _lookupTable;
-        private static byte[] LookupTable => (_lookupTable ??= GenerateLookupTable());
 
         private static byte[] GenerateLookupTable()
         {
             var table = new byte[256];
-            for (int i = 0; i < 256; i++)
-            {
-                table[i] = (byte)CountSetBits(i);
-            }
+            for (var i = 0; i < 256; i++) table[i] = (byte)CountSetBits(i);
             return table;
         }
 
@@ -95,51 +94,53 @@ namespace DataAcquisition.Shared
                 sum += b & 1;
                 b >>= 1;
             }
+
             return sum;
         }
 
-        private const int Mask = 0b11111111;
-
-        public static int CountSetFlags(Genre genre)
+        public static int CountSetFlags(GenreFlags genreFlags)
         {
-            var bytes = (int)genre;
+            var bytes = (int)genreFlags;
             var sum = 0;
-            for (int i = 0; i < 4; i++)
-            {
-                sum += LookupTable[bytes & Mask];
-                bytes >>= 8;
-            }
+            sum += LookupTable[bytes & Mask];
+            sum += LookupTable[(bytes >> 8) & Mask];
+            sum += LookupTable[(bytes >> 16) & Mask];
+            sum += LookupTable[(bytes >> 24) & Mask];
             return sum;
         }
 
         public static string[] GetGenreNames()
         {
-            return Enum.GetNames(typeof(Genre)).Skip(1).ToArray();
+            return Enum.GetNames(typeof(GenreFlags)).Skip(1).ToArray();
         }
 
-        public static int[] GetGenresAs01s(Genre genre)
+        public static int[] GetGenresAs01Array(GenreFlags genreFlags)
         {
-            int conv(Genre g, Genre f) => g.HasFlag(f) ? 1 : 0;
+            static int Conv(GenreFlags g, GenreFlags f)
+            {
+                return g.HasFlag(f) ? 1 : 0;
+            }
 
-            return new int[] {
-                conv(genre, Genre.African),
-                conv(genre, Genre.Asian),
-                conv(genre, Genre.AvantGardeOrExperimental),
-                conv(genre, Genre.Blues),
-                conv(genre, Genre.Classical),
-                conv(genre, Genre.Country),
-                conv(genre, Genre.EasyListening),
-                conv(genre, Genre.Electronic),
-                conv(genre, Genre.Folk),
-                conv(genre, Genre.HipHop),
-                conv(genre, Genre.Jazz),
-                conv(genre, Genre.LatinOrCarribean),
-                conv(genre, Genre.Metal),
-                conv(genre, Genre.MiddleEastern),
-                conv(genre, Genre.Pop),
-                conv(genre, Genre.Punk),
-                conv(genre, Genre.RnBOrSoul),
-                conv(genre, Genre.Rock)
+            return new[]
+            {
+                Conv(genreFlags, GenreFlags.African),
+                Conv(genreFlags, GenreFlags.Asian),
+                Conv(genreFlags, GenreFlags.AvantGardeOrExperimental),
+                Conv(genreFlags, GenreFlags.Blues),
+                Conv(genreFlags, GenreFlags.Classical),
+                Conv(genreFlags, GenreFlags.Country),
+                Conv(genreFlags, GenreFlags.EasyListening),
+                Conv(genreFlags, GenreFlags.Electronic),
+                Conv(genreFlags, GenreFlags.Folk),
+                Conv(genreFlags, GenreFlags.HipHop),
+                Conv(genreFlags, GenreFlags.Jazz),
+                Conv(genreFlags, GenreFlags.LatinOrCarribean),
+                Conv(genreFlags, GenreFlags.Metal),
+                Conv(genreFlags, GenreFlags.MiddleEastern),
+                Conv(genreFlags, GenreFlags.Pop),
+                Conv(genreFlags, GenreFlags.Punk),
+                Conv(genreFlags, GenreFlags.RnBOrSoul),
+                Conv(genreFlags, GenreFlags.Rock)
             };
         }
     }

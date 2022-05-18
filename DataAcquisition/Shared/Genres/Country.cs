@@ -90,7 +90,7 @@ namespace DataAcquisition.Shared.Genres
             "urban cowboy",
             "western music",
             "western swing",
-            "zydeco",
+            "zydeco"
         };
     }
 }
