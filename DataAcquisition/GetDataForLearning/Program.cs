@@ -11,6 +11,42 @@ namespace DataAcquisition.GetDataForLearning
 {
     internal class Program
     {
+        private struct ReleaseGroupRow
+        {
+            public readonly Guid Guid;
+            public readonly long? CoverId;
+            public readonly int GroupId;
+            public readonly GenreFlags Genre;
+            public readonly ImageFileType ImageFileType;
+
+            public ReleaseGroupRow(Guid guid, long? coverId, int groupId, GenreFlags genre, ImageFileType imageFileType)
+            {
+                Guid = guid;
+                CoverId = coverId;
+                GroupId = groupId;
+                Genre = genre;
+                ImageFileType = imageFileType;
+            }
+        }
+
+        private struct ReleaseRow
+        {
+            public readonly Guid Guid;
+            public readonly long? CoverId;
+            public readonly int GroupId;
+            public readonly GenreFlags Genre;
+            public readonly ImageFileType ImageFileType;
+
+            public ReleaseRow(Guid guid, long? coverId, int groupId, GenreFlags genre, ImageFileType imageFileType)
+            {
+                Guid = guid;
+                CoverId = coverId;
+                GroupId = groupId;
+                Genre = genre;
+                ImageFileType = imageFileType;
+            }
+        }
+
         private static void Main()
         {
             FilePaths.SetUp();
@@ -25,6 +61,7 @@ namespace DataAcquisition.GetDataForLearning
             Console.WriteLine("Translating tags to genres...");
             var genres = TagsToGenres(tags);
             tags = null;
+            GC.Collect();
 
             Console.WriteLine("Trimming tag relations...");
             var count = releaseTags.Length;
@@ -47,11 +84,11 @@ namespace DataAcquisition.GetDataForLearning
             var releases = ReleaseReader.Read();
             Console.WriteLine("Joining releases, covers and genres...");
             var joined = Join(releases, covers, genres, releaseTags);
-            count = joined.Count(i => i.Item3 != GenreFlags.Empty);
-            Console.WriteLine($"Releases with genre: {joined.Count(i => i.Item3 != GenreFlags.Empty)}");
+            count = joined.Count(i => i.Genre != GenreFlags.Empty);
+            Console.WriteLine($"Releases with genre: {joined.Count(i => i.Genre != GenreFlags.Empty)}");
             count = joined.Length - count;
             Console.WriteLine($"Releases without genre: {count}");
-            count = joined.Count(i => i.Item2 != null);
+            count = joined.Count(i => i.CoverId != null);
             Console.WriteLine($"Releases with cover art: {count}");
             count = joined.Length - count;
             Console.WriteLine($"Releases without cover art: {count}");
@@ -60,22 +97,24 @@ namespace DataAcquisition.GetDataForLearning
             releases = null;
             covers = null;
             releaseTags = null;
-            var merged = Merge(joined, genres, releaseGroupTags);
-            count = merged.Length;
-            Console.WriteLine($"Release groups with cover art: {count}");
-            count = merged.Count(i => i.Item3 != GenreFlags.Empty);
-            Console.WriteLine($"Release groups with cover art and genre: {count}");
-            count = merged.Length - count;
-            Console.WriteLine($"Release groups with cover art and without genre: {count}");
+            GC.Collect();
+            var merged = MergeByGroupId(joined, genres, releaseGroupTags);
+            Console.WriteLine($"Release groups: {merged.Length}");
+            Console.WriteLine("Release groups with cover art: " +
+                              $"{merged.Count(i => i.ImageFileType != ImageFileType.Unknown)}");
+            Console.WriteLine("Release groups with cover art and genre: " +
+                              $"{merged.Count(i => i.ImageFileType == ImageFileType.Unknown && i.Genre != GenreFlags.Empty)}");
+            Console.WriteLine("Release groups with cover art and without genre: " +
+                              $"{merged.Count(i => i.ImageFileType is ImageFileType.Jpg or ImageFileType.Png && i.Genre != GenreFlags.Empty)}");
             Console.WriteLine("Sorting...");
-            var sorted = merged.OrderByDescending(i => GenreHelper.CountSetFlags(i.Item3));
+            Array.Sort(merged, (a, b) => -GenreHelper.CountSetFlags(a.Genre).CompareTo(GenreHelper.CountSetFlags(b.Genre)));
             Console.WriteLine("Saving...");
-            Save(sorted);
+            Save(merged);
 
             QuitImmediately("Done!");
         }
 
-        private static void Save(IEnumerable<(Release, CoverArt, GenreFlags)> entries)
+        private static void Save(IEnumerable<ReleaseGroupRow> entries)
         {
             var filePath = FilePaths.FilenameToSavePath("valid_data_list.csv");
 
@@ -92,83 +131,76 @@ namespace DataAcquisition.GetDataForLearning
 
             foreach (var entry in entries)
             {
-                if (entry.Item3 == GenreFlags.Empty)
-                    continue;
-
                 fileStream.WriteLine(
-                    $"{entry.Item1.GroupId}," +
-                    $"{entry.Item1.Guid}," +
-                    $"{entry.Item2.ImageId}," +
-                    $"{(int)entry.Item2.FileType}," +
-                    $"{GenreHelper.CountSetFlags(entry.Item3)}," +
-                    $"{string.Join(",", GenreHelper.GetGenresAs01Array(entry.Item3))}");
+                    $"{entry.GroupId}," +
+                    $"{entry.Guid}," +
+                    $"{entry.CoverId ?? 0}," +
+                    $"{(int)entry.ImageFileType}," +
+                    $"{GenreHelper.CountSetFlags(entry.Genre)}," +
+                    $"{string.Join(",", GenreHelper.GetGenresAs01Array(entry.Genre))}");
             }
 
             fileStream.Flush();
         }
 
-        private static (Release, CoverArt, GenreFlags)[] Merge((Release, CoverArt?, GenreFlags)[] joined,
-            Dictionary<int, GenreFlags> genres, (int, int)[] releaseGroupTags)
+        private static ReleaseGroupRow[] MergeByGroupId(ReleaseRow[] joinedTables, Dictionary<int, GenreFlags> genres, (int, int)[] releaseGroupTags)
         {
-            Array.Sort(joined, (x, y) => x.Item1.GroupId.CompareTo(y.Item1.GroupId));
+            static int Comparison(ReleaseRow x, ReleaseRow y) => x.GroupId.CompareTo(y.GroupId);
 
-            var count = Algorithms.CountDistinctInSortedSet(joined,
-                (x, y) => x.Item1.GroupId.CompareTo(y.Item1.GroupId));
+            Array.Sort(joinedTables, Comparison);
+            var count = Algorithms.CountDistinctInSortedSet(joinedTables, Comparison);
+            var list = new List<ReleaseGroupRow>((int)count);
 
-            var list = new List<(Release, CoverArt, GenreFlags)>((int)count);
-
-            Algorithms.ForEachDistinctGroupInSortedArray(joined, (x, y) => x.Item1.GroupId.CompareTo(y.Item1.GroupId),
+            Algorithms.ForEachDistinctGroupInSortedArray(joinedTables, Comparison,
                 (min, max) =>
                 {
-                    var group = MergeRows(joined[min..(max + 1)], genres, releaseGroupTags);
-                    if (group?.Item2 != null)
-                        list.Add(group.Value);
+                    var group = MergeReleases(joinedTables[min..(max + 1)], genres, releaseGroupTags);
+                    list.Add(group);
                 });
 
             list.TrimExcess();
             return list.ToArray();
         }
 
-        private static (Release, CoverArt, GenreFlags)? MergeRows(IEnumerable<(Release, CoverArt?, GenreFlags)> rows,
-            Dictionary<int, GenreFlags> genres, (int, int)[] releaseGroupTags)
+        private static ReleaseGroupRow MergeReleases(ReleaseRow[] rows, Dictionary<int, GenreFlags> genres, (int, int)[] releaseGroupTags)
         {
-            CoverArt coverArt = default;
-            Release release = default;
+            if (rows == null)
+                throw new ArgumentNullException(nameof(rows));
+            if (rows.Length == 0)
+                throw new ArgumentException("Array of length 0 provided", nameof(rows));
+
+            var guid = rows[0].Guid;
+            var groupId = rows[0].GroupId;
             var genreFlags = GenreFlags.Empty;
-            var coverArtFound = false;
+            var imageFileType = ImageFileType.Unknown;
+            long? coverId = null;
 
-            foreach (var (rowRelease, rowCoverArt, rowGenre) in rows)
+            foreach (var row in rows)
             {
-                genreFlags |= rowGenre;
-                if (coverArtFound || rowCoverArt == null)
-                    continue;
+                genreFlags |= row.Genre;
 
-                release = rowRelease;
-                coverArt = rowCoverArt.Value;
-                coverArtFound = true;
+                if (coverId == null && row.CoverId != null)
+                {
+                    coverId = row.CoverId;
+                    guid = row.Guid;
+                    imageFileType = row.ImageFileType;
+                }
             }
 
-            if (!coverArtFound)
-                return null;
-
-            var (min, max) = GetIndexRangeInSortedRelationArray(releaseGroupTags, release.GroupId);
+            var (min, max) = GetIndexRangeInSortedRelationArray(releaseGroupTags, groupId);
 
             if (min != -1)
                 for (var id = min; id <= max; id++)
                     genreFlags |= genres[releaseGroupTags[id].Item2];
 
-            return (release, coverArt, genreFlags);
+            return new ReleaseGroupRow(guid, coverId, groupId, genreFlags, imageFileType);
         }
 
-        private static (Release release, CoverArt? coverArt, GenreFlags genreFlags)[] Join(
-            IReadOnlyDictionary<int, Release> releases,
-            IReadOnlyDictionary<int, CoverArt> covers,
-            IReadOnlyDictionary<int, GenreFlags> genres,
-            (int releaseId, int tagId)[] releaseTags)
+        private static ReleaseRow[] Join(Dictionary<int, Release> releases, Dictionary<int, CoverArt> covers,
+            Dictionary<int, GenreFlags> genres, (int releaseId, int tagId)[] releaseTags)
         {
-            var arr = new (Release release, CoverArt? coverArt, GenreFlags genreFlags)[releases.Count];
+            var list = new List<ReleaseRow>(releases.Count);
 
-            var i = 0;
             foreach (var (releaseId, release) in releases)
             {
                 CoverArt? coverArt = null;
@@ -182,15 +214,13 @@ namespace DataAcquisition.GetDataForLearning
                     for (var id = min; id <= max; id++)
                         genre |= genres[releaseTags[id].tagId];
 
-                arr[i] = (release, coverArt, genre);
-                i++;
+                list.Add(new ReleaseRow(release.Guid, coverArt?.ImageId, release.GroupId, genre, coverArt?.FileType ?? ImageFileType.Unknown));
             }
 
-            return arr;
+            return list.ToArray();
         }
 
-        private static (int minId, int maxId) GetIndexRangeInSortedRelationArray(
-            (int objectId, int tagId)[] tagRelations, int targetId)
+        private static (int minId, int maxId) GetIndexRangeInSortedRelationArray((int objectId, int tagId)[] tagRelations, int targetId)
         {
             var index = Array.BinarySearch(tagRelations, (targetId, -1), new TagPairComparer());
 
@@ -232,11 +262,10 @@ namespace DataAcquisition.GetDataForLearning
             return dict;
         }
 
-        private static (int objectId, int tagId)[] TrimRelations(IReadOnlyDictionary<int, GenreFlags> genres,
-            IEnumerable<(int objectId, int tagId)> relations)
+
+        // remove relations which point to GenreFlags.Empty anyway
+        private static (int objectId, int tagId)[] TrimRelations(Dictionary<int, GenreFlags> genres, (int objectId, int tagId)[] relations)
         {
-            // genres - Index, Genre
-            // relations - Index of something, Index of genre
             var list = new List<(int objectId, int tagId)>(genres.Count);
             foreach (var pair in relations)
                 if (genres.TryGetValue(pair.tagId, out var genre) && genre != GenreFlags.Empty)
