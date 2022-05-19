@@ -6,15 +6,16 @@ namespace DataAcquisition.Shared.Genres
     {
         public static readonly HashSet<string> AfricanGenres = new()
         {
-            "african",
             "african heavy metal",
             "african hip hop",
             "african popular music",
+            "african",
             "afro house",
             "afro pop",
             "afro-soul",
             "afrobeat",
             "afrobeats",
+            "afropop",
             "amapiano",
             "apala",
             "arabesque",
@@ -77,15 +78,16 @@ namespace DataAcquisition.Shared.Genres
             "sakara",
             "salegy",
             "sega",
+            "séga",
             "seggae",
             "semba",
             "shangaan electro",
             "soukous",
             "sudanese popular music",
             "sungura",
-            "séga",
             "taarab",
             "zamrock",
+            "zimbabwean",
             "zouglou"
         };
     }
