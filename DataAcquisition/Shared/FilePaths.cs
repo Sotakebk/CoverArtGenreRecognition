@@ -10,8 +10,8 @@ namespace DataAcquisition.Shared
         private const string PathToTags = @"mbdump-derived\mbdump\tag";
         private const string PathToReleaseTags = @"mbdump-derived\mbdump\release_tag";
         private const string PathToReleaseGroupTags = @"mbdump-derived\mbdump\release_group_tag";
-        private const string PathToCoverArts = @"mbdump-cover-art-archive\mbdump\cover_art_archive.cover_art";
-        private const string PathToCoverArtTypes = @"mbdump-cover-art-archive\mbdump\cover_art_archive.cover_art_type";
+        private const string PathToCoverArts = @"mbdump-cover-art-archive\mbdump\cover_art";
+        private const string PathToCoverArtTypes = @"mbdump-cover-art-archive\mbdump\cover_art_type";
 
         private static string _readFolder = "";
         private static string _saveFolder = "";

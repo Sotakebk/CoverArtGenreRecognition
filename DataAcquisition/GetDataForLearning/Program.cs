@@ -127,6 +127,7 @@ namespace DataAcquisition.GetDataForLearning
                 "CoverArtID," +
                 "ImageType," +
                 "GenreCount," +
+                "Class," +
                 $"{string.Join(",", GenreHelper.GetGenreNames())}");
 
             foreach (var entry in entries)
@@ -137,6 +138,7 @@ namespace DataAcquisition.GetDataForLearning
                     $"{entry.CoverId ?? 0}," +
                     $"{(int)entry.ImageFileType}," +
                     $"{GenreHelper.CountSetFlags(entry.Genre)}," +
+                    $"{(int)entry.Genre}," +
                     $"{string.Join(",", GenreHelper.GetGenresAs01Array(entry.Genre))}");
             }
 
@@ -261,7 +263,6 @@ namespace DataAcquisition.GetDataForLearning
             dict.TrimExcess();
             return dict;
         }
-
 
         // remove relations which point to GenreFlags.Empty anyway
         private static (int objectId, int tagId)[] TrimRelations(Dictionary<int, GenreFlags> genres, (int objectId, int tagId)[] relations)

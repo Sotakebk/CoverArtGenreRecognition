@@ -42,8 +42,8 @@ namespace DataAcquisition.Shared
                 genreFlags |= GenreFlags.LatinOrCarribean;
             if (MetalGenres.Contains(s))
                 genreFlags |= GenreFlags.Metal;
-            if (MiddleEasternGenres.Contains(s))
-                genreFlags |= GenreFlags.MiddleEastern;
+            //if (MiddleEasternGenres.Contains(s))
+            //    genreFlags |= GenreFlags.MiddleEastern;
             if (PopGenres.Contains(s))
                 genreFlags |= GenreFlags.Pop;
             if (PunkGenres.Contains(s))
@@ -111,7 +111,9 @@ namespace DataAcquisition.Shared
 
         public static string[] GetGenreNames()
         {
-            return Enum.GetNames(typeof(GenreFlags)).Skip(1).ToArray();
+            return Enum.GetNames(typeof(GenreFlags))
+                .Where(i => i != Enum.GetName(typeof(GenreFlags), GenreFlags.Empty))
+                .ToArray();
         }
 
         public static int[] GetGenresAs01Array(GenreFlags genreFlags)
@@ -136,7 +138,7 @@ namespace DataAcquisition.Shared
                 Conv(genreFlags, GenreFlags.Jazz),
                 Conv(genreFlags, GenreFlags.LatinOrCarribean),
                 Conv(genreFlags, GenreFlags.Metal),
-                Conv(genreFlags, GenreFlags.MiddleEastern),
+                //Conv(genreFlags, GenreFlags.MiddleEastern),
                 Conv(genreFlags, GenreFlags.Pop),
                 Conv(genreFlags, GenreFlags.Punk),
                 Conv(genreFlags, GenreFlags.RnBOrSoul),

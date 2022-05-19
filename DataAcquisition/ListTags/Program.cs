@@ -48,7 +48,7 @@ namespace DataAcquisition.ListTags
 
                 var releaseWithNoGenreRefs = releaseReferences.Where(tuple => !releasesWithKnownGenre.Contains(tuple.releaseId)).ToArray();
                 var releaseGroupsWithNoGenreRefs = releaseGroupReferences.Where(tuple => !releaseGroupsWithKnownGenre.Contains(tuple.groupId)).ToArray();
-                
+
                 var referenceCounts = new Dictionary<int, int>(tags.Count);
                 IncrementCounters(referenceCounts, releaseWithNoGenreRefs, tags);
                 IncrementCounters(referenceCounts, releaseGroupsWithNoGenreRefs, tags);
@@ -61,9 +61,7 @@ namespace DataAcquisition.ListTags
                 Console.WriteLine("Saving...");
                 SaveTags(entries.Where(i => GenreHelper.IsStringInAnyGroup(i.tag)), "known_tags_unknown_genre_references.txt");
                 SaveTags(entries.Where(i => !GenreHelper.IsStringInAnyGroup(i.tag)), "unknown_tags_unknown_genre_references.txt");
-
             }
-
 
             QuitImmediately("Work done!");
         }

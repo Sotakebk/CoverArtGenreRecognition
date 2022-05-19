@@ -19,7 +19,7 @@ namespace DataAcquisition.Shared
         Jazz = 1 << 10,
         LatinOrCarribean = 1 << 11,
         Metal = 1 << 12,
-        MiddleEastern = 1 << 13,
+        /*MiddleEastern = 1 << 13,*/
         Pop = 1 << 14,
         Punk = 1 << 15,
         RnBOrSoul = 1 << 16,
