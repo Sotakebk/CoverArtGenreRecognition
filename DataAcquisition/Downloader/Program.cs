@@ -3,6 +3,7 @@ using DataAcquisition.Shared.Structures;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using static DataAcquisition.Shared.ConsoleHelper;
 
@@ -24,8 +25,8 @@ namespace DataAcquisition.Downloader
             }
 
             Console.WriteLine("Counting missing images...");
-            var missingCount = CountMissingFiles(rows, directoryName);
-            Console.WriteLine($"Missing files count: {missingCount}");
+            rows = ListMissingFiles(rows, directoryName);
+            Console.WriteLine($"Missing files count: {rows.Length}");
 
             Console.WriteLine("Downloading files...");
             DownloadFiles(rows, directoryName);
@@ -33,23 +34,34 @@ namespace DataAcquisition.Downloader
             QuitImmediately("Work done!");
         }
 
-        private static void DownloadFiles(IEnumerable<Row> rows, string directoryName)
+        private static void DownloadFiles(Row[] rows, string directoryName)
         {
             using var webClient = new WebClient();
-            foreach (var row in rows)
+            var estimator = new TimeEstimator(8);
+
+            for (int i = 0; i < rows.Length; i++)
             {
-                var path = Path.Join(directoryName, GetFilenameFromRow(row));
+                var start = DateTime.Now;
+                var path = Path.Join(directoryName, GetFilenameFromRow(rows[i]));
 
-                if (File.Exists(path))
+                if (!TryDownloadFile(webClient, rows[i], path))
+                {
+                    Console.WriteLine($"Failed to download image {rows[i].ImageId}");
                     continue;
+                }
 
-                if (!TryDownloadFile(webClient, row, path))
-                    Console.WriteLine($"Failed to download image {row.ImageId}");
+                var end = DateTime.Now;
+                estimator.AddTimeSpan(end - start);
+                var ETA = estimator.Estimate(rows.Length - i);
+                Console.Title = $"ETA: {ETA:hh\\:mm\\:ss}";
             }
         }
 
         private static bool TryDownloadFile(WebClient wc, Row row, string targetPath)
         {
+            if (File.Exists(targetPath) && new FileInfo(targetPath).Length != 0)
+                return true;
+
             var attempts = 0;
             for (var i = 0; i < 4; i++) // 404 loop
                 for (var x = 0; x < 5; x++) // failed request loop
@@ -97,29 +109,23 @@ namespace DataAcquisition.Downloader
             };
         }
 
-        private static int CountMissingFiles(IEnumerable<Row> rows, string directory)
+        private static Row[] ListMissingFiles(Row[] rows, string directory)
         {
-            var counter = 0;
+            var list = new List<Row>(rows.Count());
             foreach (var i in rows)
             {
                 var path = Path.Join(directory, GetFilenameFromRow(i));
-
-                if (File.Exists(path))
+                var fileInfo = new FileInfo(path);
+                if (fileInfo.Exists && fileInfo.Length == 0)
                 {
-                    var fileInfo = new FileInfo(path);
-                    if (fileInfo.Length == 0)
-                    {
-                        File.Delete(path);
-                        counter++;
-                    }
+                    File.Delete(path);
                 }
-                else
+                if (!fileInfo.Exists)
                 {
-                    counter++;
+                    list.Add(i);
                 }
             }
-
-            return counter;
+            return list.ToArray();
         }
 
         private static string GetFilenameFromRow(Row i)
