@@ -44,7 +44,7 @@ namespace DataAcquisition.Shared.Genres
             "microtonal",
             "microtonality",
             "minimal",
-            "minimalism"
+            "minimalism",
             "musique concrète",
             "no wave",
             "noise music",
@@ -65,7 +65,7 @@ namespace DataAcquisition.Shared.Genres
             "sound art",
             "spectralism",
             "surrealist music",
-            "zolo",
+            "zolo"
         };
     }
 }
