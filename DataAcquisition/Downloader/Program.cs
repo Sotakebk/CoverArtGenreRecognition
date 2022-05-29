@@ -1,10 +1,13 @@
 ﻿using DataAcquisition.Shared;
 using DataAcquisition.Shared.Structures;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 using static DataAcquisition.Shared.ConsoleHelper;
 
 namespace DataAcquisition.Downloader
@@ -36,28 +39,57 @@ namespace DataAcquisition.Downloader
 
         private static void DownloadFiles(Row[] rows, string directoryName)
         {
-            using var webClient = new WebClient();
-            var estimator = new TimeEstimator(8);
+            const int threadCount = 3;
+            var bag = new ConcurrentBag<WebClient>();
+            var estimator = new TimeEstimator(30);
+            var _lock = new object();
+            var count = 0;
 
-            for (int i = 0; i < rows.Length; i++)
-            {
-                var start = DateTime.Now;
-                var path = Path.Join(directoryName, GetFilenameFromRow(rows[i]));
+            for (int i = 0; i < threadCount; i++)
+                bag.Add(new WebClient());
 
-                if (!TryDownloadFile(webClient, rows[i], path))
+            Parallel.For(0, rows.Length,
+                new ParallelOptions { MaxDegreeOfParallelism = threadCount },
+                (i) =>
                 {
-                    Console.WriteLine($"Failed to download image {rows[i].ImageId}");
-                    continue;
-                }
+                    WebClient client = null;
+                    int t = 0;
+                    try
+                    {
+                        while (!bag.TryTake(out client))
+                        {
+                            t++;
+                            if (t > 4)
+                                throw new Exception();
+                        }
+                        var start = DateTime.Now;
+                        var path = Path.Join(directoryName, GetFilenameFromRow(rows[i]));
+                        var task = TryDownloadFile(client, rows[i], path);
+                        task.Wait();
 
-                var end = DateTime.Now;
-                estimator.AddTimeSpan(end - start);
-                var ETA = estimator.Estimate(rows.Length - i);
-                Console.Title = $"ETA: {ETA:hh\\:mm\\:ss}";
-            }
+                        if (task.Result == false)
+                        {
+                            Console.WriteLine($"Failed to download image {rows[i].ImageId}");
+                            return;
+                        }
+
+                        var end = DateTime.Now;
+                        estimator.AddTimeSpan(end - start);
+                        var ETA = estimator.Estimate(rows.Length - (count / threadCount));
+                        Console.Title = $"{count}/{rows.Length}, ETA: {ETA:dd\\.hh\\:mm\\:ss}";
+                    }
+                    finally
+                    {
+                        if (client != null)
+                            bag.Add(client);
+
+                        lock (_lock)
+                            count++;
+                    }
+                });
         }
 
-        private static bool TryDownloadFile(WebClient wc, Row row, string targetPath)
+        private static async Task<bool> TryDownloadFile(WebClient wc, Row row, string targetPath)
         {
             if (File.Exists(targetPath) && new FileInfo(targetPath).Length != 0)
                 return true;
@@ -71,19 +103,24 @@ namespace DataAcquisition.Downloader
                     var uri = GetUri(row, i);
                     try
                     {
-                        wc.DownloadFile(uri, targetPath);
+                        var arr = wc.DownloadData(uri);
+                        await File.WriteAllBytesAsync(targetPath, arr);
                         return true;
                     }
-                    catch (WebException ex) when (ex.Response is HttpWebResponse { StatusCode: HttpStatusCode.NotFound })
+                    catch (WebException ex) when
+                    (ex.Response is HttpWebResponse { StatusCode: HttpStatusCode.NotFound }
+                                 or HttpWebResponse { StatusCode: HttpStatusCode.Forbidden })
                     {
                         Console.WriteLine(ex.Message);
-                        File.Delete(targetPath);
-                        break; // increment 404, try a different image size
+                        if (File.Exists(targetPath))
+                            File.Delete(targetPath);
+                        break; // increment 404 or 403, try a different image size
                     }
                     catch (Exception ex)
                     {
                         Console.WriteLine(ex.Message);
-                        File.Delete(targetPath);
+                        if (File.Exists(targetPath))
+                            File.Delete(targetPath);
                     }
                 }
 

@@ -21,7 +21,7 @@ namespace DataAcquisition.Downloader
             _i = ++_i % _depth;
         }
 
-        public TimeSpan Estimate(long countLeft)
+        public TimeSpan Estimate(long left)
         {
             var count = 0;
             long sum = 0;
@@ -35,7 +35,7 @@ namespace DataAcquisition.Downloader
             if (count == 0)
                 return TimeSpan.MaxValue;
 
-            return TimeSpan.FromTicks((long)(sum / (double)count)) * countLeft;
+            return TimeSpan.FromTicks((long)(left * sum / (double)count));
         }
     }
 }
